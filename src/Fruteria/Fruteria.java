@@ -1,6 +1,9 @@
-
 package Fruteria;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 public class Fruteria {
@@ -66,6 +69,26 @@ public class Fruteria {
         return posicion;
     }
 
+    public void insertarEnTablaAtendidos(Cliente cliente) {
+        try {
+            Connection miConexion = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "developer", "developer");
+            Statement miStatement = miConexion.createStatement();
+            
+            if (cliente.getEdad() == Edad.MAYOR) {
+                String instruccionSql = "INSERT INTO CLIENTESATENDIDOS VALUES(" + cliente.getnTicket() + ",'Mayor')";
+                miStatement.executeUpdate(instruccionSql);
+            } else {
+                String instruccionSql = "INSERT INTO CLIENTESATENDIDOS VALUES(" + cliente.getnTicket() + ",'Joven')";
+                miStatement.executeUpdate(instruccionSql);
+            }
+            System.out.println("Insertado en base de datos");
+        } catch (SQLException e) {
+            System.out.println("Ha ocurrido un error al insertar el cliente en la base de datos");
+            System.out.println(e.getMessage());
+        }
+
+    }
+
     public boolean atenderCliente() {
 
         if (this.listaClientesNoAtendidos.isEmpty()) {
@@ -74,10 +97,12 @@ public class Fruteria {
             int posicionMayores = this.posicionMayores();
             if (posicionMayores >= 0) {
                 this.listaClientesAtendidos.add(this.listaClientesNoAtendidos.get(posicionMayores));
+                this.insertarEnTablaAtendidos(this.listaClientesNoAtendidos.get(posicionMayores));
                 this.listaClientesNoAtendidos.remove(posicionMayores);
                 return true;
             } else {
                 this.listaClientesAtendidos.add(this.listaClientesNoAtendidos.get(0));
+                this.insertarEnTablaAtendidos(this.listaClientesNoAtendidos.get(0));
                 this.listaClientesNoAtendidos.remove(0);
                 return true;
             }
