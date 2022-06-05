@@ -1,6 +1,9 @@
-
 package Fruteria;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 
 public class Fruteria {
@@ -50,8 +53,32 @@ public class Fruteria {
     }
 
     public void nuevoCliente(Edad edad) {
-        this.listaClientesNoAtendidos.add(new Cliente(contadorClientes + 1, edad));
+        Cliente clienteAñadir = new Cliente(contadorClientes + 1, edad);
+        this.listaClientesNoAtendidos.add(clienteAñadir);
+        this.insertarEnTablaNoAtendidos(clienteAñadir);
         this.contadorClientes++;
+    }
+    //metodo para insertar en bbdd clientes que se añaden
+
+    public boolean insertarEnTablaNoAtendidos(Cliente cliente) {
+        try {
+            Connection miConexion = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "developer", "developer");
+            Statement miStatement = miConexion.createStatement();
+
+            if (cliente.getEdad() == Edad.MAYOR) {
+                String instruccionSql = "INSERT INTO CLIENTESNOATENDIDOS VALUES(" + cliente.getnTicket() + ",'Mayor')";
+                miStatement.executeUpdate(instruccionSql);
+            } else {
+                String instruccionSql = "INSERT INTO CLIENTESNOATENDIDOS VALUES(" + cliente.getnTicket() + ",'Joven')";
+                miStatement.executeUpdate(instruccionSql);
+            }
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Ha ocurrido un error al insertar el cliente en la base de datos");
+            System.out.println(e.getMessage());
+            return false;
+        }
+
     }
 
     private int posicionMayores() {
@@ -65,6 +92,28 @@ public class Fruteria {
         }
         return posicion;
     }
+//metodo para insertar en bbdd clientes que se atienden
+
+    public boolean insertarEnTablaAtendidos(Cliente cliente) {
+        try {
+            Connection miConexion = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "developer", "developer");
+            Statement miStatement = miConexion.createStatement();
+
+            if (cliente.getEdad() == Edad.MAYOR) {
+                String instruccionSql = "INSERT INTO CLIENTESATENDIDOS VALUES(" + cliente.getnTicket() + ",'Mayor')";
+                miStatement.executeUpdate(instruccionSql);
+            } else {
+                String instruccionSql = "INSERT INTO CLIENTESATENDIDOS VALUES(" + cliente.getnTicket() + ",'Joven')";
+                miStatement.executeUpdate(instruccionSql);
+            }
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Ha ocurrido un error al insertar el cliente en la base de datos");
+            System.out.println(e.getMessage());
+            return false;
+        }
+
+    }
 
     public boolean atenderCliente() {
 
@@ -74,10 +123,14 @@ public class Fruteria {
             int posicionMayores = this.posicionMayores();
             if (posicionMayores >= 0) {
                 this.listaClientesAtendidos.add(this.listaClientesNoAtendidos.get(posicionMayores));
+                this.insertarEnTablaAtendidos(this.listaClientesNoAtendidos.get(posicionMayores));
+                this.borrarCliente(this.listaClientesNoAtendidos.get(posicionMayores));
                 this.listaClientesNoAtendidos.remove(posicionMayores);
                 return true;
             } else {
                 this.listaClientesAtendidos.add(this.listaClientesNoAtendidos.get(0));
+                this.insertarEnTablaAtendidos(this.listaClientesNoAtendidos.get(0));
+                 this.borrarCliente(this.listaClientesNoAtendidos.get(0));
                 this.listaClientesNoAtendidos.remove(0);
                 return true;
             }
@@ -101,10 +154,25 @@ public class Fruteria {
     public boolean clienteAbandona(int Ticket) {
         int posicionBuscar = this.buscarCliente(Ticket);
         if (posicionBuscar >= 0) {
+            this.borrarCliente(this.listaClientesNoAtendidos.get(posicionBuscar));
             this.listaClientesNoAtendidos.remove(posicionBuscar);
             return true;
         }
         return false;
+    }
+
+    public boolean borrarCliente(Cliente cliente) {
+        try {
+            Connection miConexion = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:XE", "developer", "developer");
+            Statement miStatement = miConexion.createStatement();
+            String instruccionSql = "DELETE FROM CLIENTESNOATENDIDOS WHERE TICKET="+cliente.getnTicket();
+            miStatement.executeUpdate(instruccionSql);
+            return true;
+        } catch (SQLException e) {
+            System.out.println("Ha ocurrido un error al insertar el cliente en la base de datos");
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 
     public int adelantar(int ticket) {

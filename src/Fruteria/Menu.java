@@ -24,7 +24,8 @@ public class Menu {
                     + "\n5.- Dejar pasar"
                     + "\n6.- Mostrar no atendidos"
                     + "\n7.- Mostrar atendidos"
-                    + "\n8.- Salir"
+                    + "\n8.- Cliente abandona"
+                    + "\n9.- Salir"
                     + "\n--------------------------");
 
             opcion = sc.nextInt();
@@ -73,7 +74,7 @@ public class Menu {
                 case 4:
                     System.out.println("Introduca el ticket del cliente que va a retrasar");
                     int ticketAtrasar = sc.nextInt();
-                    int posicionCliente=f.retrasar(ticketAtrasar);
+                    int posicionCliente = f.retrasar(ticketAtrasar);
                     if (posicionCliente == -1 || posicionCliente == f.getListaClientesNoAtendidos().size() - 1) {
                         System.out.println("No se ha podido retrasar al cliente");
                     } else {
@@ -100,9 +101,18 @@ public class Menu {
                     System.out.println("");
                     break;
 
+                case 8:
+                    System.out.println("Introduca el ticket del cliente que va a abandonar");
+                    int ticketAbdona = sc.nextInt();
+                    if (f.clienteAbandona(ticketAbdona)) {
+                        System.out.println("Cliente ha abandonado correctamente");
+                    } else {
+                        System.out.println("En cliente no se encuentra en la fila");
+                    }
+                    break;
             }
 
-        } while (opcion != 8);
+        } while (opcion != 9);
     }
 
 }
