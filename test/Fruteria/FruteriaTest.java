@@ -4,11 +4,56 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import org.junit.Test;
 import static org.junit.Assert.*;
+import org.mockito.Mockito;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class FruteriaTest {
 
     public FruteriaTest() {
     }
+    
+    //comprobamos el metodo insertar cliente en tabla atendidos
+    @Test
+    public void testInsertarEnTablaAtendidos(){
+        //Mockeamos un objeto cliente para comprobar si la insercion en bbdd se esta haciendo correctamente
+    Fruteria f1 = new Fruteria("Sulca");
+    int valorTicket=12;
+    Cliente clienteMock= mock(Cliente.class);
+    when(clienteMock.getnTicket()).thenReturn(valorTicket);
+    when(clienteMock.getEdad()).thenReturn(Edad.MAYOR);
+    assertTrue(f1.insertarEnTablaAtendidos(clienteMock));
+    }
+    
+    //comprobamos el metodo insertar cliente en tabla no atendidos
+    
+    @Test
+    public void testInsertarEnTablaNoAtendidos(){
+        //Mockeamos un objeto cliente para comprobar si la insercion en bbdd se esta haciendo correctamente
+    Fruteria f1 = new Fruteria("Sulca");
+    int valorTicket=5;
+    Cliente clienteMock= mock(Cliente.class);
+    when(clienteMock.getnTicket()).thenReturn(valorTicket);
+    when(clienteMock.getEdad()).thenReturn(Edad.JOVEN);
+    assertTrue(f1.insertarEnTablaNoAtendidos(clienteMock));
+    }
+    
+    //comprobamos el metodo borrarCliente
+    
+    
+    @Test
+    public void testBorrarClienteNoAtendidos(){
+        //Mockeamos un objeto cliente para comprobar si la insercion en bbdd se esta haciendo correctamente
+    Fruteria f1 = new Fruteria("Sulca");
+    f1.insertarEnTablaNoAtendidos(new Cliente(6, Edad.JOVEN));
+    int valorTicket=6;
+    Cliente clienteMock= mock(Cliente.class);
+    when(clienteMock.getnTicket()).thenReturn(valorTicket);
+    when(clienteMock.getEdad()).thenReturn(Edad.JOVEN);
+    assertTrue(f1.borrarCliente(clienteMock));
+    }
+    
+    
     
     @Test
     public void testNuevoCliente() {
